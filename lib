@@ -1,0 +1,9 @@
+def docker(name,src=[],docker_file='Dockerfile',target_name='container'):
+    genrule(target_name,
+            srcs = [docker_file],
+            bash = ('&&'.join(map(lambda d: 'rsync -r ' + d + ' .',src)) if len(src) else 'true') + ' &&' +
+                   'cp $SRCS Dockerfile.copy &&' +
+                   'docker build --tag={0} --file=Dockerfile.copy . &&'.format(name) +
+                   'docker save --output=$OUT {0} && '.format(name) +
+                   'docker rmi {0}'.format(name),
+            out = name + '.docker')
